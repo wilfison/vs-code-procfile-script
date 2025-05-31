@@ -9,15 +9,81 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "workspaceContains:Procfile",
+    "workspaceContains:Procfile.dev"
+  ],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "procfile-explorer",
+          "title": "Procfile",
+          "icon": "resources/procfile-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "procfile-explorer": [
+        {
+          "id": "procfileScripts",
+          "name": "Procfile Scripts",
+          "icon": "resources/procfile-icon.svg"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Procfile Scripts",
+      "properties": {
+        "procfile-script.files": {
+          "type": "array",
+          "default": [
+            "Procfile",
+            "Procfile.dev"
+          ],
+          "description": "Lista de arquivos Procfile a serem detectados"
+        }
+      }
+    },
     "commands": [
       {
-        "command": "procfile-script.helloWorld",
-        "title": "Hello World"
+        "command": "procfile-script.refreshEntry",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "procfile-script.startScript",
+        "title": "Start Script",
+        "icon": "$(play)"
+      },
+      {
+        "command": "procfile-script.stopScript",
+        "title": "Stop Script",
+        "icon": "$(stop)"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "procfile-script.refreshEntry",
+          "when": "view == procfileScripts",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "procfile-script.startScript",
+          "when": "view == procfileScripts && !viewItem.running",
+          "group": "inline"
+        },
+        {
+          "command": "procfile-script.stopScript",
+          "when": "view == procfileScripts && viewItem.running",
+          "group": "inline"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

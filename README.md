@@ -1,71 +1,52 @@
-# procfile-script README
+# Procfile Script
 
-This is the README for your extension "procfile-script". After writing up a brief description, we recommend including the following sections.
+A Visual Studio Code extension to run scripts defined in Procfile files, similar to the "NPM SCRIPTS" panel in VS Code.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+This extension allows you to run and manage scripts defined in `Procfile` and `Procfile.dev` files directly in VS Code:
 
-For example if there is an image subfolder under your extension project workspace:
+- Tree view of Procfile scripts in the sidebar
+- Run scripts with a single click
+- Stop running scripts
+- Visual indication of running scripts
+- Status bar with information about running scripts
 
-\!\[feature X\]\(images/feature-x.png\)
+## How to use
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+1. Install the extension
+2. Open a project containing a `Procfile` or `Procfile.dev` file
+3. Click the extension icon in the activity bar to open the "Procfile Scripts" view
+4. Click the "play" button next to a script to run it
+5. Click the "stop" button to stop a running script
 
-## Requirements
+## Supported formats
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+The extension supports standard Procfile format:
 
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+```
+process_name: command to run
+```
 
 For example:
 
-This extension contributes the following settings:
+```
+web: node server.js
+worker: node worker.js
+```
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+The following files are automatically recognized:
 
-## Known Issues
+- `Procfile`
+- `Procfile.dev`
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## Planned features
 
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+- Custom color configuration for different scripts
+- Support for more Procfile formats
+- Option to start scripts automatically when the project opens
+- Script grouping for batch execution
 
 ---
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
 **Enjoy!**

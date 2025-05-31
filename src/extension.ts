@@ -1,26 +1,88 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
+import { ProcfileScriptProvider, ScriptTreeItem } from "./procfileView";
+import { ProcessManager } from "./processManager";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  console.log('Extension "procfile-script" is now active');
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "procfile-script" is now active!');
+  // Create the Procfile script provider
+  const procfileScriptProvider = new ProcfileScriptProvider();
+  const processManager = new ProcessManager();
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('procfile-script.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Procfile Script!');
-	});
+  // Register the tree data provider
+  const treeView = vscode.window.createTreeView("procfileScripts", {
+    treeDataProvider: procfileScriptProvider,
+    showCollapseAll: false,
+  });
 
-	context.subscriptions.push(disposable);
+  // Register commands
+  const refreshCommand = vscode.commands.registerCommand("procfile-script.refreshEntry", () => {
+    procfileScriptProvider.refresh();
+  });
+
+  const startScriptCommand = vscode.commands.registerCommand(
+    "procfile-script.startScript",
+    (item: ScriptTreeItem) => {
+      if (item) {
+        const success = processManager.startScript(item);
+        procfileScriptProvider.updateScriptStatus(item, success);
+      }
+    }
+  );
+
+  const stopScriptCommand = vscode.commands.registerCommand(
+    "procfile-script.stopScript",
+    (item: ScriptTreeItem) => {
+      if (item) {
+        const success = processManager.stopScript(item);
+        procfileScriptProvider.updateScriptStatus(item, success);
+      }
+    }
+  );
+
+  // Watch for file changes on Procfile files
+  const createFileWatcher = () => {
+    const procfileConfig = vscode.workspace.getConfiguration("procfile-script");
+    const procfileFiles: string[] = procfileConfig.get("files") || ["Procfile", "Procfile.dev"];
+    const pattern = `**/{${procfileFiles.join(",")}}`;
+
+    return vscode.workspace.createFileSystemWatcher(pattern);
+  };
+
+  let fileWatcher = createFileWatcher();
+
+  // Recria o watcher quando a configuração muda
+  vscode.workspace.onDidChangeConfiguration((event) => {
+    if (event.affectsConfiguration("procfile-script.files")) {
+      fileWatcher.dispose();
+      fileWatcher = createFileWatcher();
+      procfileScriptProvider.refresh();
+    }
+  });
+
+  fileWatcher.onDidChange(() => {
+    procfileScriptProvider.refresh();
+  });
+
+  fileWatcher.onDidCreate(() => {
+    procfileScriptProvider.refresh();
+  });
+
+  fileWatcher.onDidDelete(() => {
+    procfileScriptProvider.refresh();
+  });
+
+  // Push disposables to context subscriptions
+  context.subscriptions.push(
+    treeView,
+    refreshCommand,
+    startScriptCommand,
+    stopScriptCommand,
+    fileWatcher,
+    processManager
+  );
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  // Nothing to do
+}
