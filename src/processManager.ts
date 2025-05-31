@@ -29,7 +29,7 @@ export class ProcessManager implements vscode.Disposable {
 
     // Check if this script is already running
     if (this.runningProcesses.has(id)) {
-      return false;
+      return true;
     }
 
     try {
@@ -98,8 +98,15 @@ export class ProcessManager implements vscode.Disposable {
   private handleTerminalClosed(terminal: vscode.Terminal): void {
     for (const [id, process] of this.runningProcesses.entries()) {
       if (process.terminal === terminal) {
+        // Store the script item before deleting from map
+        const scriptItem = process.scriptItem;
+
+        // Remove from running processes
         this.runningProcesses.delete(id);
         this.updateStatusBar();
+
+        // Emit an event that can be captured to update the UI
+        vscode.commands.executeCommand("procfile-script.updateScriptStatus", scriptItem, false);
         break;
       }
     }

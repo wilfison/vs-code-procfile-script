@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { ProcfileScriptProvider, ScriptTreeItem, ProcfileTreeItem } from "./procfileView";
+import { ProcfileScriptProvider, ScriptTreeItem } from "./procfileView";
 import { ProcessManager } from "./processManager";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -26,6 +26,16 @@ export function activate(context: vscode.ExtensionContext) {
       if (item) {
         const success = processManager.startScript(item);
         procfileScriptProvider.updateScriptStatus(item, success);
+      }
+    }
+  );
+
+  // Command to update script status from anywhere
+  const updateScriptStatusCommand = vscode.commands.registerCommand(
+    "procfile-script.updateScriptStatus",
+    (item: ScriptTreeItem, running: boolean) => {
+      if (item) {
+        procfileScriptProvider.updateScriptStatus(item, running);
       }
     }
   );
@@ -78,6 +88,7 @@ export function activate(context: vscode.ExtensionContext) {
     refreshCommand,
     startScriptCommand,
     stopScriptCommand,
+    updateScriptStatusCommand,
     fileWatcher,
     processManager
   );
