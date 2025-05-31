@@ -15,17 +15,8 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "procfile-explorer",
-          "title": "Procfile",
-          "icon": "resources/procfile-icon.svg"
-        }
-      ]
-    },
     "views": {
-      "procfile-explorer": [
+      "explorer": [
         {
           "id": "procfileScripts",
           "name": "Procfile Scripts",

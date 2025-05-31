@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { ProcfileScriptProvider, ScriptTreeItem } from "./procfileView";
+import { ProcfileScriptProvider, ScriptTreeItem, ProcfileTreeItem } from "./procfileView";
 import { ProcessManager } from "./processManager";
 
 export function activate(context: vscode.ExtensionContext) {
