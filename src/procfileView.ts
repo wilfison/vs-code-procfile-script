@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import { ProcfileManager } from "./procfile";
 import { ProcessManager } from "./processManager";
+import { getIcon } from "./icons";
 
 export class ProcfileTreeItem extends vscode.TreeItem {
   public readonly id: string;
@@ -14,7 +15,7 @@ export class ProcfileTreeItem extends vscode.TreeItem {
   ) {
     super(label, collapsibleState);
     this.contextValue = running ? "running-procfile" : "procfile";
-    this.iconPath = new vscode.ThemeIcon(running ? "stop-circle" : "file");
+    this.iconPath = getIcon("procfile", running, true);
     this.id = `procfile:${label}`;
 
     this.tooltip = `${label} (${filePath})`;
@@ -37,7 +38,7 @@ export class ScriptTreeItem extends vscode.TreeItem {
     this.contextValue = running ? "running" : "script";
     this.id = `${source}:${label}`;
 
-    this.iconPath = new vscode.ThemeIcon(running ? "stop-circle" : "wrench");
+    this.iconPath = getIcon(label, running, true);
   }
 }
 

@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { ScriptTreeItem, ProcfileTreeItem } from "./procfileView";
 import { ProcfileManager } from "./procfile";
+import { getIcon } from "./icons";
 
 export interface RunningProcess {
   id: string;
@@ -58,7 +59,7 @@ export class ProcessManager implements vscode.Disposable {
     try {
       const terminal = vscode.window.createTerminal({
         name: `${scriptItem.label} (${scriptItem.source})`,
-        iconPath: new vscode.ThemeIcon("play"),
+        iconPath: getIcon(scriptItem.label),
       });
 
       terminal.show();
