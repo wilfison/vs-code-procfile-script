@@ -1,24 +1,20 @@
 # Procfile Script
 
-A Visual Studio Code extension to run scripts defined in Procfile files, similar to the "NPM SCRIPTS" panel in VS Code.
+A Visual Studio Code extension to run scripts defined in Procfile files.
 
-## Features
+[![Version](https://img.shields.io/visual-studio-marketplace/v/wilfison.procfile-script.svg)](https://marketplace.visualstudio.com/items?itemName=wilfison.procfile-script)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/wilfison.procfile-script.svg)](https://marketplace.visualstudio.com/items?itemName=wilfison.procfile-script)
+[![Rating](https://img.shields.io/visual-studio-marketplace/r/wilfison.procfile-script.svg)](https://marketplace.visualstudio.com/items?itemName=wilfison.procfile-script)
 
-This extension allows you to run and manage scripts defined in `Procfile` and `Procfile.dev` files directly in VS Code:
-
-- Organização hierárquica de scripts agrupados por arquivo Procfile
-- Execução de scripts com um único clique
-- Interrupção de scripts em execução
-- Indicação visual de scripts em execução
-- Barra de status com informações sobre os scripts em execução
+![Procfile Script in action](https://github.com/wilfison/vs-code-procfile-script/raw/HEAD/resources/preview.gif)
 
 ## How to use
 
 1. Install the extension
 2. Open a project containing a `Procfile` or `Procfile.dev` file
 3. Locate the "Procfile Scripts" section in the Explorer panel of VS Code
-4. Click the "play" button next to a script to run it
-5. Click the "stop" button to stop a running script
+4. Click on the script to run it
+5. Click again to stop the script
 
 ## Supported formats
 
@@ -28,14 +24,14 @@ The extension supports standard Procfile format:
 process_name: command to run
 ```
 
-Por exemplo:
+It also supports the `Procfile.dev` format, which is commonly used for development environments.
 
 ```
 web: node server.js
 worker: node worker.js
 ```
 
-Os scripts são organizados hierarquicamente na visualização em árvore:
+The `Procfile.dev` can contain multiple scripts, and the extension will display them in a hierarchical tree structure:
 
 ```
 - Procfile.dev
