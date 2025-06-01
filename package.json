@@ -20,7 +20,7 @@
         {
           "id": "procfileScripts",
           "name": "Procfile Scripts",
-          "icon": "resources/procfile-icon.svg"
+          "icon": "$(file-text)"
         }
       ]
     },
