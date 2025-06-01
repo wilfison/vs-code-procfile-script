@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { ProcfileScriptProvider, ScriptTreeItem } from "./procfileView";
+import { ProcfileScriptProvider, ScriptTreeItem, ProcfileTreeItem } from "./procfileView";
 import { ProcessManager } from "./processManager";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const startScriptCommand = vscode.commands.registerCommand(
     "procfile-script.startScript",
-    (item: ScriptTreeItem) => {
+    (item: ScriptTreeItem | ProcfileTreeItem) => {
       if (item) {
         processManager.startScript(item);
         procfileScriptProvider.refresh();
@@ -31,7 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const stopScriptCommand = vscode.commands.registerCommand(
     "procfile-script.stopScript",
-    (item: ScriptTreeItem) => {
+    (item: ScriptTreeItem | ProcfileTreeItem) => {
       if (item) {
         processManager.stopScript(item);
         procfileScriptProvider.refresh();
@@ -50,11 +50,16 @@ export function activate(context: vscode.ExtensionContext) {
 
   let fileWatcher = createFileWatcher();
 
-  // Recria o watcher quando a configuração muda
+  // Recreate the watcher when configuration changes
   vscode.workspace.onDidChangeConfiguration((event) => {
     if (event.affectsConfiguration("procfile-script.files")) {
       fileWatcher.dispose();
       fileWatcher = createFileWatcher();
+      procfileScriptProvider.refresh();
+    }
+
+    // Update the view when runner configuration changes
+    if (event.affectsConfiguration("procfile-script.runner")) {
       procfileScriptProvider.refresh();
     }
   });

@@ -4,14 +4,20 @@ import { ProcfileManager } from "./procfile";
 import { ProcessManager } from "./processManager";
 
 export class ProcfileTreeItem extends vscode.TreeItem {
+  public readonly id: string;
+
   constructor(
     public readonly label: string,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly filePath: string,
+    public running: boolean = false
   ) {
     super(label, collapsibleState);
-    this.contextValue = "procfile";
-    this.iconPath = new vscode.ThemeIcon("file");
+    this.contextValue = running ? "running-procfile" : "procfile";
+    this.iconPath = new vscode.ThemeIcon(running ? "stop-circle" : "file");
     this.id = `procfile:${label}`;
+
+    this.tooltip = `${label} (${filePath})`;
   }
 }
 
@@ -31,14 +37,7 @@ export class ScriptTreeItem extends vscode.TreeItem {
     this.contextValue = running ? "running" : "script";
     this.id = `${source}:${label}`;
 
-    this.iconPath = new vscode.ThemeIcon(running ? "stop-circle" : "play");
-
-    // Make items clickable by setting a command
-    this.command = {
-      title: running ? "Stop Script" : "Start Script",
-      command: running ? "procfile-script.stopScript" : "procfile-script.startScript",
-      arguments: [this],
-    };
+    this.iconPath = new vscode.ThemeIcon(running ? "stop-circle" : "wrench");
   }
 }
 
@@ -111,7 +110,9 @@ export class ProcfileScriptProvider
         // Create Procfile item
         const procfileItem = new ProcfileTreeItem(
           sourceName,
-          vscode.TreeItemCollapsibleState.Expanded
+          vscode.TreeItemCollapsibleState.Expanded,
+          procfilePath,
+          this.processManager.isScriptRunning(`procfile_full:${sourceName}`)
         );
 
         this.procfiles.set(procfileId, procfileItem);

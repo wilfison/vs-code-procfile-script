@@ -33,7 +33,12 @@
             "Procfile",
             "Procfile.dev"
           ],
-          "description": "Lista de arquivos Procfile a serem detectados"
+          "description": "List of Procfile files to detect"
+        },
+        "procfile-script.runner": {
+          "type": "string",
+          "default": "foreman",
+          "description": "Command used to run Procfile files"
         }
       }
     },
@@ -60,6 +65,28 @@
           "command": "procfile-script.refreshEntry",
           "when": "view == procfileScripts",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "procfile-script.startScript",
+          "when": "view == procfileScripts && viewItem == script",
+          "group": "inline"
+        },
+        {
+          "command": "procfile-script.stopScript",
+          "when": "view == procfileScripts && viewItem == running",
+          "group": "inline"
+        },
+        {
+          "command": "procfile-script.startScript",
+          "when": "view == procfileScripts && viewItem == procfile",
+          "group": "inline"
+        },
+        {
+          "command": "procfile-script.stopScript",
+          "when": "view == procfileScripts && viewItem == running-procfile",
+          "group": "inline"
         }
       ]
     }

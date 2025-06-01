@@ -1,10 +1,13 @@
 import * as vscode from "vscode";
-import { ScriptTreeItem } from "./procfileView";
+import { ScriptTreeItem, ProcfileTreeItem } from "./procfileView";
+import { ProcfileManager } from "./procfile";
 
 export interface RunningProcess {
   id: string;
   terminal: vscode.Terminal;
-  scriptItem: ScriptTreeItem;
+  item: ScriptTreeItem | ProcfileTreeItem;
+  label: string;
+  description?: string;
 }
 
 export class ProcessManager implements vscode.Disposable {
@@ -29,7 +32,22 @@ export class ProcessManager implements vscode.Disposable {
     });
   }
 
-  public startScript(scriptItem: ScriptTreeItem): boolean {
+  /**
+   * Start a script or Procfile
+   */
+  public startScript(item: ScriptTreeItem | ProcfileTreeItem): boolean {
+    if (item instanceof ScriptTreeItem) {
+      return this.startScriptItem(item);
+    } else if (item instanceof ProcfileTreeItem) {
+      return this.startProcfileItem(item);
+    }
+    return false;
+  }
+
+  /**
+   * Start an individual script
+   */
+  private startScriptItem(scriptItem: ScriptTreeItem): boolean {
     const id = `${scriptItem.source}:${scriptItem.label}`;
 
     // Check if this script is already running
@@ -39,7 +57,7 @@ export class ProcessManager implements vscode.Disposable {
 
     try {
       const terminal = vscode.window.createTerminal({
-        name: `Procfile: ${scriptItem.label} (${scriptItem.source})`,
+        name: `${scriptItem.label} (${scriptItem.source})`,
         iconPath: new vscode.ThemeIcon("play"),
       });
 
@@ -49,7 +67,9 @@ export class ProcessManager implements vscode.Disposable {
       const process: RunningProcess = {
         id,
         terminal,
-        scriptItem,
+        item: scriptItem,
+        label: scriptItem.label,
+        description: scriptItem.scriptCommand,
       };
 
       this.runningProcesses.set(id, process);
@@ -63,8 +83,60 @@ export class ProcessManager implements vscode.Disposable {
     }
   }
 
-  public stopScript(scriptItem: ScriptTreeItem): boolean {
-    const id = `${scriptItem.source}:${scriptItem.label}`;
+  /**
+   * Start an entire Procfile
+   */
+  private startProcfileItem(procfileItem: ProcfileTreeItem): boolean {
+    const id = `procfile_full:${procfileItem.label}`;
+
+    // Check if this Procfile is already running
+    if (this.runningProcesses.has(id)) {
+      return true;
+    }
+
+    try {
+      // Create a terminal to run the Procfile
+      const terminal = vscode.window.createTerminal({
+        name: `Procfile: ${procfileItem.label} (full)`,
+        iconPath: new vscode.ThemeIcon("play"),
+      });
+
+      terminal.show();
+
+      // Use the ProcfileManager to build the command
+      const runCommand = ProcfileManager.buildRunCommand(procfileItem.filePath);
+      terminal.sendText(runCommand);
+
+      const process: RunningProcess = {
+        id,
+        terminal,
+        item: procfileItem,
+        label: procfileItem.label,
+        description: `Full Procfile (${ProcfileManager.getRunnerCommand()})`,
+      };
+
+      this.runningProcesses.set(id, process);
+      this.updateStatusBar();
+      return true;
+    } catch (err) {
+      console.error("Failed to start Procfile:", err);
+      vscode.window.showErrorMessage(`Failed to start Procfile ${procfileItem.label}: ${err}`);
+      return false;
+    }
+  }
+
+  /**
+   * Stop a running script or Procfile
+   */
+  public stopScript(item: ScriptTreeItem | ProcfileTreeItem): boolean {
+    let id: string;
+
+    if (item instanceof ScriptTreeItem) {
+      id = `${item.source}:${item.label}`;
+    } else {
+      id = `procfile_full:${item.label}`;
+    }
+
     const process = this.runningProcesses.get(id);
 
     if (!process) {
@@ -77,8 +149,8 @@ export class ProcessManager implements vscode.Disposable {
       this.updateStatusBar();
       return true;
     } catch (err) {
-      console.error("Failed to stop script:", err);
-      vscode.window.showErrorMessage(`Failed to stop script ${scriptItem.label}: ${err}`);
+      console.error("Failed to stop process:", err);
+      vscode.window.showErrorMessage(`Failed to stop process ${process.label}: ${err}`);
       return false;
     }
   }
@@ -88,7 +160,7 @@ export class ProcessManager implements vscode.Disposable {
       try {
         process.terminal.dispose();
       } catch (err) {
-        console.error("Failed to stop script:", err);
+        console.error("Failed to stop process:", err);
       }
     }
 
@@ -122,11 +194,13 @@ export class ProcessManager implements vscode.Disposable {
 
     if (this.runningProcesses.size === 1) {
       const process = Array.from(this.runningProcesses.values())[0];
-      this.statusBarItem.text = `$(play) ${process.scriptItem.label}`;
-      this.statusBarItem.tooltip = `Running Procfile script: ${process.scriptItem.label} (${process.scriptItem.scriptCommand})`;
+      this.statusBarItem.text = `$(play) ${process.label}`;
+      this.statusBarItem.tooltip = `Running: ${process.label}${
+        process.description ? ` (${process.description})` : ""
+      }`;
     } else {
-      this.statusBarItem.text = `$(play) Procfile Scripts (${this.runningProcesses.size})`;
-      this.statusBarItem.tooltip = `Running ${this.runningProcesses.size} Procfile scripts`;
+      this.statusBarItem.text = `$(play) Procfile Processes (${this.runningProcesses.size})`;
+      this.statusBarItem.tooltip = `Running ${this.runningProcesses.size} Procfile processes`;
     }
 
     this.statusBarItem.show();

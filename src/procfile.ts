@@ -69,4 +69,27 @@ export class ProcfileManager {
       return [];
     }
   }
+
+  /**
+   * Get the configured runner command for Procfiles
+   */
+  public static getRunnerCommand(): string {
+    const config = vscode.workspace.getConfiguration("procfile-script");
+    return config.get("runner") || "foreman";
+  }
+
+  /**
+   * Build a command to run a Procfile using the configured runner
+   */
+  public static buildRunCommand(procfilePath: string, processName?: string): string {
+    const runner = this.getRunnerCommand();
+    const baseCommand = `${runner} start -f "${procfilePath}"`;
+
+    // If a specific process was specified, add it to the command
+    if (processName) {
+      return `${baseCommand} -p ${processName}`;
+    }
+
+    return baseCommand;
+  }
 }

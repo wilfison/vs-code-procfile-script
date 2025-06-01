@@ -13,12 +13,12 @@ A Visual Studio Code extension to run scripts defined in Procfile files.
 1. Install the extension
 2. Open a project containing a `Procfile` or `Procfile.dev` file
 3. Locate the "Procfile Scripts" section in the Explorer panel of VS Code
-4. Click on the script to run it
-5. Click again to stop the script
+4. Click the 'play' button on the right of a script to run it, or on the Procfile itself to run all scripts.
+5. Click the 'stop' button on the right to stop the running script or Procfile.
 
 ## Supported formats
 
-The extension supports standard Procfile format:
+The extension supports standard `Procfile` format:
 
 ```
 process_name: command to run
@@ -48,12 +48,25 @@ The following files are automatically recognized:
 - `Procfile`
 - `Procfile.dev`
 
+## Configuration
+
+The extension offers the following configuration options:
+
+- `procfile-script.files`: Array of Procfile filenames to detect (default: `["Procfile", "Procfile.dev"]`)
+- `procfile-script.runner`: Command used to run Procfile files (default: `"foreman"`)
+
+You can customize these settings in VS Code's settings:
+
+```json
+{
+  "procfile-script.files": ["Procfile", "Procfile.dev", "Procfile.local"],
+  "procfile-script.runner": "foreman"
+}
+```
+
 ## Planned features
 
 - Custom color configuration for different scripts
-- Support for more Procfile formats
-- Option to start scripts automatically when the project opens
-- Script grouping for batch execution
 
 ---
 
