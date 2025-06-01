@@ -22,6 +22,12 @@ export class ProcessManager implements vscode.Disposable {
     vscode.window.onDidCloseTerminal((terminal) => {
       this.handleTerminalClosed(terminal);
     });
+
+    vscode.window.onDidEndTerminalShellExecution((event) => {
+      if (event.terminal) {
+        this.handleTerminalClosed(event.terminal);
+      }
+    });
   }
 
   public startScript(scriptItem: ScriptTreeItem): boolean {
