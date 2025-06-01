@@ -31,7 +31,7 @@ export class ScriptTreeItem extends vscode.TreeItem {
     this.contextValue = running ? "running" : "script";
     this.id = `${source}:${label}`;
 
-    this.iconPath = new vscode.ThemeIcon(running ? "sync~spin" : "play");
+    this.iconPath = new vscode.ThemeIcon(running ? "stop-circle" : "play");
 
     // Make items clickable by setting a command
     this.command = {
