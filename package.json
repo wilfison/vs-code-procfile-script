@@ -61,18 +61,6 @@
           "when": "view == procfileScripts",
           "group": "navigation"
         }
-      ],
-      "view/item/context": [
-        {
-          "command": "procfile-script.startScript",
-          "when": "view == procfileScripts && !viewItem.running",
-          "group": "inline"
-        },
-        {
-          "command": "procfile-script.stopScript",
-          "when": "view == procfileScripts && viewItem.running",
-          "group": "inline"
-        }
       ]
     }
   },

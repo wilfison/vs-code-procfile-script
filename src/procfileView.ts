@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { ProcfileManager } from "./procfile";
+import { ProcessManager } from "./processManager";
 
 export class ProcfileTreeItem extends vscode.TreeItem {
   constructor(
@@ -27,10 +28,10 @@ export class ScriptTreeItem extends vscode.TreeItem {
     super(label, collapsibleState);
     this.tooltip = `${label}: ${scriptCommand}`;
     this.description = scriptCommand;
-    this.contextValue = running ? "running" : "script"; // Changed to match the when clause in package.json
+    this.contextValue = running ? "running" : "script";
     this.id = `${source}:${label}`;
 
-    this.iconPath = new vscode.ThemeIcon(running ? "debug-stop" : "debug-start");
+    this.iconPath = new vscode.ThemeIcon(running ? "sync~spin" : "play");
 
     // Make items clickable by setting a command
     this.command = {
@@ -47,6 +48,7 @@ export class ProcfileScriptProvider
   private _onDidChangeTreeData: vscode.EventEmitter<
     ProcfileTreeItem | ScriptTreeItem | undefined | null | void
   > = new vscode.EventEmitter<ProcfileTreeItem | ScriptTreeItem | undefined | null | void>();
+
   readonly onDidChangeTreeData: vscode.Event<
     ProcfileTreeItem | ScriptTreeItem | undefined | null | void
   > = this._onDidChangeTreeData.event;
@@ -55,7 +57,7 @@ export class ProcfileScriptProvider
   private procfiles: Map<string, ProcfileTreeItem> = new Map();
   private scriptsByProcfile: Map<string, ScriptTreeItem[]> = new Map();
 
-  constructor() {
+  constructor(public processManager: ProcessManager) {
     this.refresh();
   }
 
@@ -127,7 +129,7 @@ export class ProcfileScriptProvider
             entry.command,
             entry.source,
             vscode.TreeItemCollapsibleState.None,
-            existingItem?.running || false
+            existingItem?.running || this.processManager.isScriptRunning(id)
           );
 
           this.scripts.set(id, scriptItem);
@@ -140,26 +142,6 @@ export class ProcfileScriptProvider
     }
 
     return Promise.resolve(procfileItems);
-  }
-
-  updateScriptStatus(item: ScriptTreeItem, running: boolean): void {
-    const script = this.scripts.get(item.id);
-
-    if (script) {
-      script.running = running;
-      script.contextValue = running ? "running" : "script";
-      script.iconPath = new vscode.ThemeIcon(running ? "debug-stop" : "debug-start");
-
-      // Update command based on new running state
-      script.command = {
-        title: running ? "Stop Script" : "Start Script",
-        command: running ? "procfile-script.stopScript" : "procfile-script.startScript",
-        arguments: [script],
-      };
-
-      // Update the view to reflect status change
-      this._onDidChangeTreeData.fire();
-    }
   }
 
   getScriptById(id: string): ScriptTreeItem | undefined {

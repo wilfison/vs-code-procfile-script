@@ -5,9 +5,8 @@ import { ProcessManager } from "./processManager";
 export function activate(context: vscode.ExtensionContext) {
   console.log('Extension "procfile-script" is now active');
 
-  // Create the Procfile script provider
-  const procfileScriptProvider = new ProcfileScriptProvider();
   const processManager = new ProcessManager();
+  const procfileScriptProvider = new ProcfileScriptProvider(processManager);
 
   // Register the tree data provider
   const treeView = vscode.window.createTreeView("procfileScripts", {
@@ -24,18 +23,8 @@ export function activate(context: vscode.ExtensionContext) {
     "procfile-script.startScript",
     (item: ScriptTreeItem) => {
       if (item) {
-        const success = processManager.startScript(item);
-        procfileScriptProvider.updateScriptStatus(item, success);
-      }
-    }
-  );
-
-  // Command to update script status from anywhere
-  const updateScriptStatusCommand = vscode.commands.registerCommand(
-    "procfile-script.updateScriptStatus",
-    (item: ScriptTreeItem, running: boolean) => {
-      if (item) {
-        procfileScriptProvider.updateScriptStatus(item, running);
+        processManager.startScript(item);
+        procfileScriptProvider.refresh();
       }
     }
   );
@@ -44,8 +33,8 @@ export function activate(context: vscode.ExtensionContext) {
     "procfile-script.stopScript",
     (item: ScriptTreeItem) => {
       if (item) {
-        const success = processManager.stopScript(item);
-        procfileScriptProvider.updateScriptStatus(item, success);
+        processManager.stopScript(item);
+        procfileScriptProvider.refresh();
       }
     }
   );
@@ -88,7 +77,6 @@ export function activate(context: vscode.ExtensionContext) {
     refreshCommand,
     startScriptCommand,
     stopScriptCommand,
-    updateScriptStatusCommand,
     fileWatcher,
     processManager
   );

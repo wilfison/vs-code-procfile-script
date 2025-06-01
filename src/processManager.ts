@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import * as path from "path";
 import { ScriptTreeItem } from "./procfileView";
 
 export interface RunningProcess {
@@ -9,7 +8,7 @@ export interface RunningProcess {
 }
 
 export class ProcessManager implements vscode.Disposable {
-  private runningProcesses: Map<string, RunningProcess> = new Map();
+  public runningProcesses: Map<string, RunningProcess> = new Map();
   private statusBarItem: vscode.StatusBarItem;
 
   constructor() {
@@ -104,15 +103,12 @@ export class ProcessManager implements vscode.Disposable {
   private handleTerminalClosed(terminal: vscode.Terminal): void {
     for (const [id, process] of this.runningProcesses.entries()) {
       if (process.terminal === terminal) {
-        // Store the script item before deleting from map
-        const scriptItem = process.scriptItem;
-
         // Remove from running processes
         this.runningProcesses.delete(id);
         this.updateStatusBar();
 
         // Emit an event that can be captured to update the UI
-        vscode.commands.executeCommand("procfile-script.updateScriptStatus", scriptItem, false);
+        vscode.commands.executeCommand("procfile-script.refreshEntry");
         break;
       }
     }
