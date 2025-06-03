@@ -6,6 +6,7 @@ const SCRIPT_ICONS: Record<string, Array<string>> = {
   css: ["file-code", "terminal.ansiGreen"],
   js: ["json", "terminal.ansiYellow"],
   worker: ["server", "terminal.ansiCyan"],
+  ruby: ["ruby", "terminal.ansiRed"],
   api: ["symbol-method"],
   test: ["beaker"],
   procfile: ["file"],
