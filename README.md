@@ -16,6 +16,22 @@ A Visual Studio Code extension to run scripts defined in Procfile files.
 4. Click the 'play' button on the right of a script to run it, or on the Procfile itself to run all scripts.
 5. Click the 'stop' button on the right to stop the running script or Procfile.
 
+## Runners
+
+| Language       | Runner                                                     |
+| -------------- | ---------------------------------------------------------- |
+| Ruby (Default) | [foreman](https://github.com/ddollar/foreman)              |
+| Go             | [forego](https://github.com/ddollar/forego)                |
+| Node.js        | [node-foreman](https://github.com/strongloop/node-foreman) |
+| Java/JVM       | [gaffer](https://github.com/jingweno/gaffer)               |
+| Go             | [goreman](https://github.com/mattn/goreman)                |
+| python         | [honcho](https://github.com/nickstenning/honcho)           |
+| Perl           | [proclet](https://github.com/kazeburo/Proclet)             |
+| shell          | [shoreman](https://github.com/chrismytton/shoreman)        |
+| Crystal        | [crank](https://github.com/arktisklada/crank)              |
+| Haskell        | [houseman](https://github.com/fujimura/houseman)           |
+| Go             | [spm](https://github.com/bytegust/spm)                     |
+
 ## Supported formats
 
 The extension supports standard `Procfile` format:
