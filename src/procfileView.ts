@@ -6,6 +6,7 @@ import { getIcon } from "./icons";
 
 export class ProcfileTreeItem extends vscode.TreeItem {
   public readonly id: string;
+  public readonly scriptCommand: string;
 
   constructor(
     public readonly label: string,
@@ -19,6 +20,7 @@ export class ProcfileTreeItem extends vscode.TreeItem {
     this.id = `procfile:${label}`;
 
     this.tooltip = `${label} (${filePath})`;
+    this.scriptCommand = ProcfileManager.buildRunCommand(filePath);
   }
 }
 
@@ -113,7 +115,7 @@ export class ProcfileScriptProvider
           sourceName,
           vscode.TreeItemCollapsibleState.Expanded,
           procfilePath,
-          this.processManager.isScriptRunning(`procfile_full:${sourceName}`)
+          this.processManager.isScriptRunning(procfileId)
         );
 
         this.procfiles.set(procfileId, procfileItem);

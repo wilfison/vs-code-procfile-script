@@ -5,9 +5,11 @@ import { getIcon } from "./icons";
 
 export interface RunningProcess {
   id: string;
+  command: string;
   terminal: vscode.Terminal;
   item: ScriptTreeItem | ProcfileTreeItem;
   label: string;
+  running?: boolean;
   description?: string;
 }
 
@@ -57,23 +59,8 @@ export class ProcessManager implements vscode.Disposable {
     }
 
     try {
-      const terminal = vscode.window.createTerminal({
-        name: `${scriptItem.label} (${scriptItem.source})`,
-        iconPath: getIcon(scriptItem.label),
-      });
-
-      terminal.show();
-      terminal.sendText(scriptItem.scriptCommand);
-
-      const process: RunningProcess = {
-        id,
-        terminal,
-        item: scriptItem,
-        label: scriptItem.label,
-        description: scriptItem.scriptCommand,
-      };
-
-      this.runningProcesses.set(id, process);
+      const process = this.buildProcess(scriptItem);
+      this.handleStartProcess(process);
       this.updateStatusBar();
 
       return true;
@@ -88,7 +75,7 @@ export class ProcessManager implements vscode.Disposable {
    * Start an entire Procfile
    */
   private startProcfileItem(procfileItem: ProcfileTreeItem): boolean {
-    const id = `procfile_full:${procfileItem.label}`;
+    const id = procfileItem.id;
 
     // Check if this Procfile is already running
     if (this.runningProcesses.has(id)) {
@@ -96,27 +83,8 @@ export class ProcessManager implements vscode.Disposable {
     }
 
     try {
-      // Create a terminal to run the Procfile
-      const terminal = vscode.window.createTerminal({
-        name: `Procfile: ${procfileItem.label} (full)`,
-        iconPath: new vscode.ThemeIcon("play"),
-      });
-
-      terminal.show();
-
-      // Use the ProcfileManager to build the command
-      const runCommand = ProcfileManager.buildRunCommand(procfileItem.filePath);
-      terminal.sendText(runCommand);
-
-      const process: RunningProcess = {
-        id,
-        terminal,
-        item: procfileItem,
-        label: procfileItem.label,
-        description: `Full Procfile (${ProcfileManager.getRunnerCommand()})`,
-      };
-
-      this.runningProcesses.set(id, process);
+      const process = this.buildProcess(procfileItem);
+      this.handleStartProcess(process);
       this.updateStatusBar();
       return true;
     } catch (err) {
@@ -130,13 +98,7 @@ export class ProcessManager implements vscode.Disposable {
    * Stop a running script or Procfile
    */
   public stopScript(item: ScriptTreeItem | ProcfileTreeItem): boolean {
-    let id: string;
-
-    if (item instanceof ScriptTreeItem) {
-      id = `${item.source}:${item.label}`;
-    } else {
-      id = `procfile_full:${item.label}`;
-    }
+    let id: string = item.id;
 
     const process = this.runningProcesses.get(id);
 
@@ -171,6 +133,45 @@ export class ProcessManager implements vscode.Disposable {
 
   public isScriptRunning(id: string): boolean {
     return this.runningProcesses.has(id);
+  }
+
+  private handleStartProcess(process: RunningProcess): void {
+    process.terminal.show();
+    process.terminal.sendText(process.command);
+    this.runningProcesses.set(process.id, process);
+  }
+
+  private buildProcess(item: ScriptTreeItem | ProcfileTreeItem): RunningProcess {
+    const existingProcess = this.runningProcesses.get(item.id);
+    const runCommand = item.scriptCommand;
+
+    if (existingProcess) {
+      existingProcess.command = runCommand;
+
+      return existingProcess;
+    }
+
+    const terminal = vscode.window.createTerminal({
+      name: item.label,
+      iconPath: getIcon(item.label, false, true),
+    });
+
+    const description =
+      item instanceof ScriptTreeItem
+        ? item.scriptCommand
+        : `Full Procfile (${ProcfileManager.getRunnerCommand()})`;
+
+    const process: RunningProcess = {
+      id: item.id,
+      command: runCommand,
+      terminal,
+      item: item,
+      label: item.label,
+      running: true,
+      description,
+    };
+
+    return process;
   }
 
   private handleTerminalClosed(terminal: vscode.Terminal): void {
