@@ -1,4 +1,5 @@
-import { ThemeColor, ThemeIcon } from "vscode";
+import path from "path";
+import { IconPath, ThemeColor, ThemeIcon, Uri } from "vscode";
 
 const SCRIPT_ICONS: Record<string, Array<string>> = {
   stop: ["stop-circle", "editorError.foreground"],
@@ -13,10 +14,14 @@ const SCRIPT_ICONS: Record<string, Array<string>> = {
   default: ["wrench"],
 };
 
-export function getIcon(name: string, running?: boolean, with_color?: boolean): ThemeIcon {
+export function getIcon(name: string, running?: boolean, with_color?: boolean): ThemeIcon | IconPath {
   const [iconName, color] = running
     ? SCRIPT_ICONS.stop
     : SCRIPT_ICONS[name] || SCRIPT_ICONS.default;
+
+  if (name === "procfile" && !running) {
+    return Uri.file(path.join(__dirname, "..", "resources", "procfile.svg"));
+  }
 
   const iconColor = color && (with_color || running) ? new ThemeColor(color) : undefined;
 
