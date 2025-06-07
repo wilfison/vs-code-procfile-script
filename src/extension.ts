@@ -39,6 +39,13 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
+  const focusTerminalCommand = vscode.commands.registerCommand(
+    "procfile-script.focusTerminal",
+    (id: string) => {
+      processManager.focusTerminal(id);
+    }
+  );
+
   // Watch for file changes on Procfile files
   const createFileWatcher = () => {
     const procfileConfig = vscode.workspace.getConfiguration("procfile-script");
@@ -82,6 +89,7 @@ export function activate(context: vscode.ExtensionContext) {
     refreshCommand,
     startScriptCommand,
     stopScriptCommand,
+    focusTerminalCommand,
     fileWatcher,
     processManager
   );

@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { ScriptTreeItem, ProcfileTreeItem } from "./procfileView";
 import { ProcfileManager } from "./procfile";
-import { getIcon } from "./icons";
+import { getIcon, getIconAndColor } from "./icons";
 
 export interface RunningProcess {
   id: string;
@@ -15,14 +15,15 @@ export interface RunningProcess {
 
 export class ProcessManager implements vscode.Disposable {
   public runningProcesses: Map<string, RunningProcess> = new Map();
-  private statusBarItem: vscode.StatusBarItem;
+  private statusBarItems: Map<string, vscode.StatusBarItem> = new Map();
+  private summaryStatusBarItem: vscode.StatusBarItem;
 
   constructor() {
-    this.statusBarItem = vscode.window.createStatusBarItem(
+    this.summaryStatusBarItem = vscode.window.createStatusBarItem(
       "procfile-script.status",
       vscode.StatusBarAlignment.Left
     );
-    this.statusBarItem.name = "Procfile";
+    this.summaryStatusBarItem.name = "Procfile";
 
     vscode.window.onDidCloseTerminal((terminal) => {
       this.handleTerminalClosed(terminal);
@@ -190,26 +191,79 @@ export class ProcessManager implements vscode.Disposable {
 
   private updateStatusBar(): void {
     if (this.runningProcesses.size === 0) {
-      this.statusBarItem.hide();
+      this.summaryStatusBarItem.hide();
+
+      // Dispose individual status bar items
+      for (const statusBarItem of this.statusBarItems.values()) {
+        statusBarItem.dispose();
+      }
+      this.statusBarItems.clear();
       return;
     }
 
-    if (this.runningProcesses.size === 1) {
-      const process = Array.from(this.runningProcesses.values())[0];
-      this.statusBarItem.text = `$(play) ${process.label}`;
-      this.statusBarItem.tooltip = `Running: ${process.label}${
-        process.description ? ` (${process.description})` : ""
-      }`;
-    } else {
-      this.statusBarItem.text = `$(play) Procfile Processes (${this.runningProcesses.size})`;
-      this.statusBarItem.tooltip = `Running ${this.runningProcesses.size} Procfile processes`;
+    // Update summary item
+    this.summaryStatusBarItem.text = `$(play) Procfile (${this.runningProcesses.size})`;
+    this.summaryStatusBarItem.tooltip = `${this.runningProcesses.size} Procfile processes running`;
+    this.summaryStatusBarItem.show();
+
+    // Track existing items to remove outdated ones
+    const currentIds = new Set<string>();
+
+    // Create or update individual status bar items for each process
+    for (const [id, process] of this.runningProcesses.entries()) {
+      currentIds.add(id);
+      let statusBarItem = this.statusBarItems.get(id);
+
+      // Create new status bar item if it doesn't exist
+      if (!statusBarItem) {
+        statusBarItem = vscode.window.createStatusBarItem(
+          `procfile-script.process.${id}`,
+          vscode.StatusBarAlignment.Left
+        );
+
+        // Add command to focus on the terminal when clicked
+        statusBarItem.command = {
+          title: "Focus Terminal",
+          command: "procfile-script.focusTerminal",
+          arguments: [id],
+        };
+
+        this.statusBarItems.set(id, statusBarItem);
+      }
+
+      const processDescription = process.description ? ` (${process.description})` : "";
+      const [iconName, color] = getIconAndColor(process.label);
+
+      // Update status bar item
+      statusBarItem.text = `$(${iconName}) ${process.label}`;
+      statusBarItem.tooltip = `Procfile process: ${process.label}${processDescription}. Click to focus.`;
+      statusBarItem.color = color ? new vscode.ThemeColor(color) : undefined;
+      statusBarItem.show();
     }
 
-    this.statusBarItem.show();
+    // Remove any status bar items for processes that are no longer running
+    for (const [id, statusBarItem] of this.statusBarItems.entries()) {
+      if (!currentIds.has(id)) {
+        statusBarItem.dispose();
+        this.statusBarItems.delete(id);
+      }
+    }
+  }
+
+  public focusTerminal(id: string): void {
+    const process = this.runningProcesses.get(id);
+    if (process) {
+      process.terminal.show();
+    }
   }
 
   public dispose(): void {
     this.stopAllScripts();
-    this.statusBarItem.dispose();
+    this.summaryStatusBarItem.dispose();
+
+    // Dispose all individual status bar items
+    for (const statusBarItem of this.statusBarItems.values()) {
+      statusBarItem.dispose();
+    }
   }
 }
