@@ -1,13 +1,35 @@
 {
   "name": "procfile-script",
-  "displayName": "Procfile Script",
+  "displayName": "Procfile",
   "description": "Run scripts defined in your Procfile",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.100.0"
+  "version": "1.0.0",
+  "icon": "resources/icon.png",
+  "galleryBanner": {
+    "color": "#7E57C2",
+    "theme": "light"
   },
+  "publisher": "wilfison",
+  "author": {
+    "name": "wilfison",
+    "url": "https://github.com/wilfison"
+  },
+  "repository": {
+    "url": "https://github.com/wilfison/vs-code-procfile-script"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "license": "MIT",
   "categories": [
-    "Other"
+    "Programming Languages"
+  ],
+  "keywords": [
+    "procfile",
+    "foreman",
+    "heroku",
+    "scripts",
+    "tasks",
+    "development"
   ],
   "activationEvents": [
     "workspaceContains:Procfile",
