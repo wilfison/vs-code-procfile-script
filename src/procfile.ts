@@ -20,7 +20,7 @@ export class ProcfileManager {
 
     const procfilePaths: string[] = [];
     const procfileConfig = vscode.workspace.getConfiguration("procfile-script");
-    const procfileFiles: string[] = procfileConfig.get("files") || ["Procfile", "Procfile.dev"];
+    const procfileFiles: string[] = procfileConfig.get("files") || ["Procfile.dev", "Procfile"];
 
     for (const folder of workspaceFolders) {
       for (const file of procfileFiles) {

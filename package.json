@@ -54,8 +54,8 @@
         "procfile-script.files": {
           "type": "array",
           "default": [
-            "Procfile",
-            "Procfile.dev"
+            "Procfile.dev",
+            "Procfile"
           ],
           "description": "List of Procfile files to detect"
         },

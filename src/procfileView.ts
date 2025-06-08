@@ -96,6 +96,7 @@ export class ProcfileScriptProvider
   private getProcfiles(): Thenable<ProcfileTreeItem[]> {
     const procfilePaths = ProcfileManager.findProcfiles(vscode.workspace.workspaceFolders);
     const procfileItems: ProcfileTreeItem[] = [];
+    let fileIndex = 0;
 
     // Clear existing maps
     this.scripts.clear();
@@ -105,15 +106,17 @@ export class ProcfileScriptProvider
     // For each Procfile
     for (const procfilePath of procfilePaths) {
       const entries = ProcfileManager.parseProcfile(procfilePath);
+      fileIndex++;
 
       if (entries.length > 0) {
         const sourceName = entries[0].source || path.basename(procfilePath);
         const procfileId = `procfile:${sourceName}`;
+        const collapsedState = fileIndex === 1 ? 2 : 1;
 
         // Create Procfile item
         const procfileItem = new ProcfileTreeItem(
           sourceName,
-          vscode.TreeItemCollapsibleState.Expanded,
+          collapsedState,
           procfilePath,
           this.processManager.isScriptRunning(procfileId)
         );
