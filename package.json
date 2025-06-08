@@ -1,6 +1,6 @@
 {
   "name": "procfile-script",
-  "displayName": "Procfile",
+  "displayName": "Procfile Script",
   "description": "Run scripts defined in your Procfile",
   "version": "1.0.0",
   "icon": "resources/icon.png",
